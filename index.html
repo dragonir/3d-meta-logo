@@ -18,6 +18,10 @@
       margin: 0;
       padding: 0;
     }
+    body {
+      background: url('./assets/images/bg.png') no-repeat center;
+      background-size: cover;
+    }
   </style>
 </head>
 
@@ -39,11 +43,12 @@
       document.body.appendChild(container);
       // 场景
       scene = new THREE.Scene();
-      scene.background = new THREE.Color(0xa0a0a0);
+      scene.transparent = true;
+      scene.opacity = 0.1;
       scene.fog = new THREE.Fog(0xa0a0a0, 200, 1000);
       // 透视相机：视场、长宽比、近面、远面
       camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-      camera.position.set(0, 5, 20);
+      camera.position.set(0, 4, 16);
       camera.lookAt(new THREE.Vector3(0, 0, 0));
       // 半球光源：创建室外效果更加自然的光源
       light = new THREE.HemisphereLight(0xffffff, 0x444444);
@@ -58,12 +63,14 @@
       var ambientLight = new THREE.AmbientLight(ambiColor);
       scene.add(ambientLight);
       // 网格
-      var grid = new THREE.GridHelper(50, 100, 0x000000, 0x000000);
-      grid.material.opacity = 0.2;
+      var grid = new THREE.GridHelper(100, 100, 0xdddddd, 0xdddddd);
+      grid.position.set(0, -10, 0);
+      grid.material.opacity = 0.1;
       grid.material.transparent = true;
       scene.add(grid);
       // 加载模型
       var loader = new THREE.FBXLoader();
+      var texLoader = new THREE.TextureLoader();
       loader.load('assets/models/meta.fbx', function (mesh) {
         mesh.traverse(function (child) {
           if (child.isMesh) {
@@ -73,11 +80,20 @@
             if (child.name === '球体' || child.name === '球体001') {
               child.visible = false
             }
+            if (child.name === '贝塞尔圆') {
+              child.material = new THREE.MeshPhysicalMaterial({
+                map: texLoader.load("./assets/images/metal.png"),
+                metalness: .2,
+                transmission: 1,
+                roughness: 0.1,
+                exposure: 0.4
+              })
+            }
           }
         });
         mesh.rotation.y = Math.PI / 2;
-        mesh.position.set(0, 2, 0);
-        mesh.scale.set(0.05, 0.05, 0.05);
+        mesh.position.set(0, 1, 0);
+        mesh.scale.set(0.065, 0.065, 0.065);
         scene.add(mesh);
         mesh.animations.map(item => {
           let animationType = item.name.split('|')[0];
@@ -94,9 +110,10 @@
           })
         })
       });
-      renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
       renderer.setPixelRatio(window.devicePixelRatio);
       renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setClearAlpha(0);
       renderer.shadowMap.enabled = true;
       container.appendChild(renderer.domElement);
       controls = new THREE.OrbitControls(camera, renderer.domElement);
@@ -115,13 +132,13 @@
     }
 
     function animate() {
-      requestAnimationFrame(animate);
       renderer.render(scene, camera);
       let time = clock.getDelta();
       mixerArr.map(mixer => {
         mixer && mixer.update(time);
       })
       stats.update();
+      requestAnimationFrame(animate);
     }
     // 增加点击事件
     //声明raycaster和mouse变量
