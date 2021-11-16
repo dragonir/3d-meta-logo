@@ -19,8 +19,8 @@
       padding: 0;
     }
     body {
-      background: url('./assets/images/bg.png') no-repeat center;
-      background-size: cover;
+      background: #40a9ff url('./assets/images/bg.png') no-repeat bottom right;
+      background-size: contain;
     }
   </style>
 </head>
@@ -35,7 +35,7 @@
     var container, stats, controls;
     var camera, scene, renderer, light, lands = [];
     var clock = new THREE.Clock();
-    var mixer, mixerArr = [];
+    var mixer, mixerArr = [], manMixer;
     init();
     animate();
     function init() {
@@ -51,16 +51,16 @@
       camera.position.set(0, 4, 16);
       camera.lookAt(new THREE.Vector3(0, 0, 0));
       // 半球光源：创建室外效果更加自然的光源
-      light = new THREE.HemisphereLight(0xffffff, 0x444444);
+      light = new THREE.HemisphereLight(0xffffff, 0x1089ff);
       light.position.set(0, 20, 0);
       scene.add(light);
+
       light = new THREE.DirectionalLight(0xffffff);
       light.position.set(0, 20, 10);
       light.castShadow = true;
       scene.add(light);
       // 环境光
-      var ambiColor = '#0C0C0C';
-      var ambientLight = new THREE.AmbientLight(ambiColor);
+      var ambientLight = new THREE.AmbientLight(0x2d2d2d);
       scene.add(ambientLight);
       // 网格
       var grid = new THREE.GridHelper(100, 100, 0xdddddd, 0xdddddd);
@@ -84,7 +84,6 @@
               child.material = new THREE.MeshPhysicalMaterial({
                 map: texLoader.load("./assets/images/metal.png"),
                 metalness: .2,
-                transmission: 1,
                 roughness: 0.1,
                 exposure: 0.4
               })
@@ -93,7 +92,7 @@
         });
         mesh.rotation.y = Math.PI / 2;
         mesh.position.set(0, 1, 0);
-        mesh.scale.set(0.065, 0.065, 0.065);
+        mesh.scale.set(0.06, 0.06, 0.06);
         scene.add(mesh);
         mesh.animations.map(item => {
           let animationType = item.name.split('|')[0];
@@ -110,8 +109,28 @@
           })
         })
       });
+
+      // 加载人物
+      loader.load('assets/models/man.fbx', function (mesh) {
+        mesh.traverse(function (child) {
+          if (child.isMesh) {
+            child.castShadow = true;
+            child.receiveShadow = true;
+          }
+        });
+        mesh.rotation.y = Math.PI / 2;
+        mesh.position.set(-12, -8.4, -3);
+        mesh.scale.set(0.09, 0.09, 0.09);
+        scene.add(mesh);
+        manMixer = new THREE.AnimationMixer(mesh);
+        let animationClip = mesh.animations[0];
+        let clipAction = manMixer.clipAction(animationClip).play();
+        animationClip = clipAction.getClip();
+      });
+
       renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
       renderer.setPixelRatio(window.devicePixelRatio);
+      renderer.outputEncoding = THREE.sRGBEncoding;
       renderer.setSize(window.innerWidth, window.innerHeight);
       renderer.setClearAlpha(0);
       renderer.shadowMap.enabled = true;
@@ -137,6 +156,7 @@
       mixerArr.map(mixer => {
         mixer && mixer.update(time);
       })
+      manMixer && manMixer.update(time)
       stats.update();
       requestAnimationFrame(animate);
     }
