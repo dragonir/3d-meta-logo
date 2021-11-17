@@ -2,20 +2,15 @@
 
 ![banner](./assets/images/banner.png)
 
-
-
 ## 背景
 
-![meta.gif](./assets/images/meta.gif)
+![zack](./assets/images/zack.gif)
 
 ### 什么是元宇宙
 
 「元宇宙」的内涵是吸纳了信息革命（5G/6G)、互联网革命（web3.0）、人工智能革命，以及 VR、AR、MR，特别是游戏引擎在内的虚拟现实技术革命的成果，向人类展现出构建与传统物理世界平行的全息数字世界的可能性；引发了信息科学、量子科学，数学和生命科学的互动，改变科学范式；推动了传统的哲学、社会学甚至人文科学体系的突破；囊括了所有的数字技术，包括区块链技术成就；丰富了数字经济转型模式，融合 DeFi、IPFS、NFT 等数字金融成果。
 
-
-
 ———数字资产研究院学术与技术委员会主任朱嘉明教授
-
 
 源起
 
@@ -37,39 +32,13 @@
 
 ## 效果
 
-![sample1](./assets/images/sample1.png)
+![preview](./assets/images/preview.gif)
 
 > 在线预览
 
 ## 实现
 
 ### 版本1
-
-### 版本2
-
-#### 建模
-
-![bilibili](./assets/images/bilibili.png)
-
-> https://www.bilibili.com/video/BV1Bf4y1T7ce
-
-#### 代码实现
-
-
-#### 加载模型
-
-#### 动画
-
-#### loading
-
-#### 点击更换材质
-
-#### 点击添加高亮边框
-
-
-## 总结
-
-## meta 0
 
 ```js
 function init() {
@@ -135,7 +104,6 @@ function init() {
   gui.add(controls, 'radius', 0, 10).onChange(controls.redraw);
   gui.add(controls, 'radiusSegments', 0, 200).step(1).onChange(controls.redraw);
   gui.add(controls, 'closed').onChange(controls.redraw);
-
   gui.add(controls, 'appliedMaterial', {
     meshNormal: applyMeshNormalMaterial,
     meshStandard: applyMeshStandardMaterial
@@ -185,9 +153,293 @@ function init() {
 }
 ```
 
+### 版本2
+
+#### 建模
+
+![bilibili](./assets/images/bilibili.png)
+
+> https://www.bilibili.com/video/BV1Bf4y1T7ce
+
+#### 代码实现
+
+```html
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>3D META LOGO</title>
+  <meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no,viewport-fit=cover">
+  <meta name="keywords" content="meta,facebook,Mark Elliot Zuckerberg">
+  <meta name="description" content="meta,facebook,Mark Elliot Zuckerberg">
+  <meta name="apple-mobile-web-app-capable" content="yes"  />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="shortcut icon" href="./assets/images/logo.png">
+  <link rel="apple-touch-icon" href="./assets/images/logo.png"/>
+  <link rel="apple-touch-icon-precomposed" href="./assets/images/logo.png">
+  <link rel="Bookmark" href="./assets/images/logo.png" />
+  <style>
+    :root {
+      --themeColor: #0072ff;
+      --secondColor: #00c6ff;
+    }
+    * {
+      margin: 0;
+      padding: 0;
+    }
+    html {
+      background: var(--themeColor);
+      background: -webkit-linear-gradient(to left, var(--themeColor) , var(--secondColor));
+      background: linear-gradient(to left, var(--themeColor), var(--secondColor));
+    }
+    body {
+      background: url('./assets/images/bg.png') no-repeat bottom right;
+      background-size: contain;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+    .loading {
+      position: fixed;
+      height: 100%;
+      width: 100%;
+      left: 0;
+      top: 0;
+      background: #FFFFFF;
+    }
+    .loading .content {
+      height: 330px;
+      width: 540px;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      margin-top: -165px;
+      margin-left: -270px;
+    }
+    .loading .content .banner {
+      display: inline-block;
+      width: 540px;
+      height: 303px;
+      background: url('./assets/images/meta.gif') no-repeat center;
+      background-size: 100% 100%;
+    }
+    .loading .content {
+      text-align: center;
+      font-size: 20px;
+      color: #666666;
+    }
+    .loading .content span {
+      color: var(--themeColor);
+      padding-left: 8px;
+    }
+    .logo {
+      position: absolute;
+      top: 56px;
+      left: 56px;
+      width: 321px;
+      height: 64.875px;
+      background: url('./assets/images/icon.png') no-repeat center;
+      background-size: 100% 100%;
+      filter: drop-shadow(0px 1px 5px rgba(255, 255, 255, .2));
+    }
+  </style>
+</head>
+
+<body>
+  <i class="logo"></i>
+  <div class="loading" id="loading">
+    <div class="content">
+      <i class="banner"></i>
+      <p class="text">加载进度<span id="progress">0%</span></p>
+    </div>
+  <div>
+  <script src="./assets/libs/three.js"></script>
+  <script src="./assets/libs/loaders/FBXLoader.js"></script>
+  <script src="./assets/libs/inflate.min.js"></script>
+  <script src="./assets/libs/OrbitControls.js"></script>
+  <script src="./assets/libs/stats.js"></script>
+  <script>
+    var container, stats, controls, compose;
+    var camera, scene, renderer, light, clickableObjects = [];
+    var clock = new THREE.Clock();
+    var mixer, mixerArr = [], manMixer;
+    init();
+    animate();
+    function init() {
+      container = document.createElement('div');
+      document.body.appendChild(container);
+      // 场景
+      scene = new THREE.Scene();
+      scene.transparent = true;
+      scene.opacity = 0.1;
+      scene.fog = new THREE.Fog(0xa0a0a0, 200, 1000);
+      // 透视相机：视场、长宽比、近面、远面
+      camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+      camera.position.set(0, 4, 16);
+      camera.lookAt(new THREE.Vector3(0, 0, 0));
+      // 半球光源：创建室外效果更加自然的光源
+      light = new THREE.HemisphereLight(0xefefef);
+      light.position.set(0, 20, 0);
+      scene.add(light);
+      // 平行光
+      light = new THREE.DirectionalLight(0x2d2d2d);
+      light.position.set(0, 20, 10);
+      light.castShadow = true;
+      scene.add(light);
+      // 环境光
+      var ambientLight = new THREE.AmbientLight(0xffffff, .5);
+      scene.add(ambientLight);
+      // 网格
+      var grid = new THREE.GridHelper(100, 100, 0xffffff, 0xffffff);
+      grid.position.set(0, -10, 0);
+      grid.material.opacity = 0.3;
+      grid.material.transparent = true;
+      scene.add(grid);
+      // 加载模型
+      var loader = new THREE.FBXLoader();
+      var texLoader = new THREE.TextureLoader();
+      loader.load('assets/models/meta.fbx', function (mesh) {
+        mesh.traverse(function (child) {
+          if (child.isMesh) {
+            child.castShadow = true;
+            child.receiveShadow = true;
+            // 隐藏多余物体
+            if (child.name === '球体' || child.name === '球体001') {
+              child.visible = false
+            }
+            // 设置材质
+            if (child.name === '贝塞尔圆') {
+              clickableObjects.push(child)
+              child.material = new THREE.MeshPhysicalMaterial({
+                map: texLoader.load("./assets/images/metal.png"),
+                metalness: .2,
+                roughness: 0.1,
+                exposure: 0.4
+              });
+            }
+          }
+        });
+        mesh.rotation.y = Math.PI / 2;
+        mesh.position.set(0, 1, 0);
+        mesh.scale.set(0.05, 0.05, 0.05);
+        scene.add(mesh);
+        mesh.animations.map(item => {
+          let animationType = item.name.split('|')[0];
+          mesh.traverse(child => {
+            if (child.name === animationType && (child.name === '贝塞尔圆')) {
+              console.log(child.name)
+              let mixer = new THREE.AnimationMixer(child);
+              mixerArr.push(mixer);
+              let animationClip = item;
+              animationClip.duration = 8;
+              let clipAction = mixer.clipAction(animationClip).play();
+              animationClip = clipAction.getClip();
+            }
+          })
+        })
+      });
+
+      // 加载人物
+      loader.load('assets/models/man.fbx', function (mesh) {
+        mesh.traverse(function (child) {
+          if (child.isMesh) {
+            child.castShadow = true;
+            child.receiveShadow = true;
+          }
+        });
+        mesh.rotation.y = Math.PI / 2;
+        mesh.position.set(-14, -8.4, -3);
+        mesh.scale.set(0.085, 0.085, 0.085);
+        scene.add(mesh);
+        manMixer = new THREE.AnimationMixer(mesh);
+        let animationClip = mesh.animations[0];
+        let clipAction = manMixer.clipAction(animationClip).play();
+        animationClip = clipAction.getClip();
+      }, res => {
+        let progress = (res.loaded / res.total * 100).toFixed(0);
+        document.getElementById('progress').innerText = progress + '%';
+        if (Number(progress) === 100) {
+          document.getElementById('loading').style.display = 'none';
+        }
+      }, err => {
+        console.log(err)
+      });
+
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      renderer.setPixelRatio(window.devicePixelRatio);
+      renderer.outputEncoding = THREE.sRGBEncoding;
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      // 背景色设置为透明
+      renderer.setClearAlpha(0);
+      // 开启阴影
+      renderer.shadowMap.enabled = true;
+      container.appendChild(renderer.domElement);
+      // 添加镜头控制器
+      controls = new THREE.OrbitControls(camera, renderer.domElement);
+      controls.target.set(0, 0, 0);
+      controls.update();
+      window.addEventListener('resize', onWindowResize, false);
+      // stats：初始化性能插件
+      stats = new Stats();
+      container.appendChild(stats.dom);
+    }
+    // 屏幕缩放
+    function onWindowResize() {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+    // 页面更新
+    function animate() {
+      renderer.render(scene, camera);
+      let time = clock.getDelta();
+      mixerArr.map(mixer => {
+        mixer && mixer.update(time);
+      })
+      manMixer && manMixer.update(time)
+      stats.update();
+      requestAnimationFrame(animate);
+    }
+    // 增加点击事件
+    //声明raycaster和mouse变量
+    var raycaster = new THREE.Raycaster();
+    var mouse = new THREE.Vector2();
+    function onMouseClick(event) {
+      // 通过鼠标点击的位置计算出raycaster所需要的点的位置，以屏幕中心为原点，值的范围为-1到1.
+      mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+      mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
+      // 通过鼠标点的位置和当前相机的矩阵计算出raycaster
+      raycaster.setFromCamera(mouse, camera);
+      // 获取raycaster直线和所有模型相交的数组集合
+      let intersects = raycaster.intersectObjects(clickableObjects);
+      if (intersects.length > 0) {
+        console.log(intersects[0].object)
+        let selectedObj = intersects[0].object;
+        selectedObj.material = new THREE.MeshStandardMaterial({
+          color: `#${Math.random().toString(16).slice(-6)}`,
+          metalness: Math.random(),
+          roughness: Math.random()
+        })
+      }
+    }
+    window.addEventListener('click', onMouseClick, false);
+  </script>
+</body>
+</html>
+```
+
+#### 加载模型
+
+#### 动画
+
+#### loading
+
+#### 点击更换材质
+
+#### 点击添加高亮边框
+
+## 总结
+
 ## 参考资料
 
-1. 什么是元宇宙：https://zhuanlan.zhihu.com/p/392257538
-
-
-免费模型下载 https://www.mixamo.com/
+* [1]. [什么是元宇宙？](https://zhuanlan.zhihu.com/p/392257538)
+* [2]. [Adobe免费模型下载](https://www.mixamo.com)

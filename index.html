@@ -3,7 +3,7 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <title>3D META</title>
+  <title>3D META LOGO</title>
   <meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no,viewport-fit=cover">
   <meta name="keywords" content="meta,facebook,Mark Elliot Zuckerberg">
   <meta name="description" content="meta,facebook,Mark Elliot Zuckerberg">
@@ -14,12 +14,21 @@
   <link rel="apple-touch-icon-precomposed" href="./assets/images/logo.png">
   <link rel="Bookmark" href="./assets/images/logo.png" />
   <style>
+    :root {
+      --themeColor: #0072ff;
+      --secondColor: #00c6ff;
+    }
     * {
       margin: 0;
       padding: 0;
     }
+    html {
+      background: var(--themeColor);
+      background: -webkit-linear-gradient(to left, var(--themeColor) , var(--secondColor));
+      background: linear-gradient(to left, var(--themeColor), var(--secondColor));
+    }
     body {
-      background: #40a9ff url('./assets/images/bg.png') no-repeat bottom right;
+      background: url('./assets/images/bg.png') no-repeat bottom right;
       background-size: contain;
       font-family: Arial, Helvetica, sans-serif;
     }
@@ -53,13 +62,24 @@
       color: #666666;
     }
     .loading .content span {
-      color: #40a9ff;
+      color: var(--themeColor);
       padding-left: 8px;
+    }
+    .logo {
+      position: absolute;
+      top: 56px;
+      left: 56px;
+      width: 321px;
+      height: 64.875px;
+      background: url('./assets/images/icon.png') no-repeat center;
+      background-size: 100% 100%;
+      filter: drop-shadow(0px 1px 5px rgba(255, 255, 255, .2));
     }
   </style>
 </head>
 
 <body>
+  <i class="logo"></i>
   <div class="loading" id="loading">
     <div class="content">
       <i class="banner"></i>
@@ -70,7 +90,6 @@
   <script src="./assets/libs/loaders/FBXLoader.js"></script>
   <script src="./assets/libs/inflate.min.js"></script>
   <script src="./assets/libs/OrbitControls.js"></script>
-  <script src="./assets/libs/OutlinePass.js"></script>
   <script src="./assets/libs/stats.js"></script>
   <script>
     var container, stats, controls, compose;
@@ -92,21 +111,21 @@
       camera.position.set(0, 4, 16);
       camera.lookAt(new THREE.Vector3(0, 0, 0));
       // 半球光源：创建室外效果更加自然的光源
-      light = new THREE.HemisphereLight(0xffffff, 0x1089ff);
+      light = new THREE.HemisphereLight(0xefefef);
       light.position.set(0, 20, 0);
       scene.add(light);
-
-      light = new THREE.DirectionalLight(0xffffff);
+      // 平行光
+      light = new THREE.DirectionalLight(0x2d2d2d);
       light.position.set(0, 20, 10);
       light.castShadow = true;
       scene.add(light);
       // 环境光
-      var ambientLight = new THREE.AmbientLight(0x2d2d2d);
+      var ambientLight = new THREE.AmbientLight(0xffffff, .5);
       scene.add(ambientLight);
       // 网格
-      var grid = new THREE.GridHelper(100, 100, 0xdddddd, 0xdddddd);
+      var grid = new THREE.GridHelper(100, 100, 0xffffff, 0xffffff);
       grid.position.set(0, -10, 0);
-      grid.material.opacity = 0.1;
+      grid.material.opacity = 0.3;
       grid.material.transparent = true;
       scene.add(grid);
       // 加载模型
@@ -117,9 +136,11 @@
           if (child.isMesh) {
             child.castShadow = true;
             child.receiveShadow = true;
+            // 隐藏多余物体
             if (child.name === '球体' || child.name === '球体001') {
               child.visible = false
             }
+            // 设置材质
             if (child.name === '贝塞尔圆') {
               clickableObjects.push(child)
               child.material = new THREE.MeshPhysicalMaterial({
@@ -127,7 +148,7 @@
                 metalness: .2,
                 roughness: 0.1,
                 exposure: 0.4
-              })
+              });
             }
           }
         });
@@ -143,7 +164,7 @@
               let mixer = new THREE.AnimationMixer(child);
               mixerArr.push(mixer);
               let animationClip = item;
-              animationClip.duration = 10;
+              animationClip.duration = 8;
               let clipAction = mixer.clipAction(animationClip).play();
               animationClip = clipAction.getClip();
             }
@@ -161,7 +182,7 @@
         });
         mesh.rotation.y = Math.PI / 2;
         mesh.position.set(-14, -8.4, -3);
-        mesh.scale.set(0.09, 0.09, 0.09);
+        mesh.scale.set(0.085, 0.085, 0.085);
         scene.add(mesh);
         manMixer = new THREE.AnimationMixer(mesh);
         let animationClip = mesh.animations[0];
@@ -181,9 +202,12 @@
       renderer.setPixelRatio(window.devicePixelRatio);
       renderer.outputEncoding = THREE.sRGBEncoding;
       renderer.setSize(window.innerWidth, window.innerHeight);
+      // 背景色设置为透明
       renderer.setClearAlpha(0);
+      // 开启阴影
       renderer.shadowMap.enabled = true;
       container.appendChild(renderer.domElement);
+      // 添加镜头控制器
       controls = new THREE.OrbitControls(camera, renderer.domElement);
       controls.target.set(0, 0, 0);
       controls.update();
@@ -192,13 +216,13 @@
       stats = new Stats();
       container.appendChild(stats.dom);
     }
-
+    // 屏幕缩放
     function onWindowResize() {
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, window.innerHeight);
     }
-
+    // 页面更新
     function animate() {
       renderer.render(scene, camera);
       let time = clock.getDelta();
@@ -206,7 +230,6 @@
         mixer && mixer.update(time);
       })
       manMixer && manMixer.update(time)
-      compose && compose.render(time);
       stats.update();
       requestAnimationFrame(animate);
     }
@@ -225,35 +248,12 @@
       if (intersects.length > 0) {
         console.log(intersects[0].object)
         let selectedObj = intersects[0].object;
+        selectedObj.material = new THREE.MeshStandardMaterial({
+          color: `#${Math.random().toString(16).slice(-6)}`,
+          metalness: Math.random(),
+          roughness: Math.random()
+        })
       }
-    }
-
-    const setOutline = (selectedObjects, color = 0xFFFC00) => {
-      const [w, h] = [window.innerWidth, window.innerHeight];
-      let _compose = new THREE.EffectComposer(renderer);
-      let renderPass = new THREE.RenderPass(scene, camera);
-      let outlinePass = new THREE.OutlinePass(new THREE.Vector2(w, h),
-        scene,
-        camera,
-        selectedObjects
-      );
-      outlinePass.renderToScreen = true;
-      outlinePass.selectedObjects = selectedObjects;
-      _compose.addPass(renderPass);
-      _compose.addPass(outlinePass);
-      const params = {
-        edgeStrength: 3,
-        edgeGlow: 0,
-        edgeThickness: 20000,
-        pulsePeriod: 1,
-        usePatternTexture: false
-      };
-      outlinePass.edgeStrength = params.edgeStrength;
-      outlinePass.edgeGlow = params.edgeGlow;
-      outlinePass.visibleEdgeColor.set(color);
-      outlinePass.hiddenEdgeColor.set(color);
-      _compose.render(scene, camera);
-      compose = _compose;
     }
     window.addEventListener('click', onMouseClick, false);
   </script>
