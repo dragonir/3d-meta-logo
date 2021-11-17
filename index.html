@@ -21,19 +21,60 @@
     body {
       background: #40a9ff url('./assets/images/bg.png') no-repeat bottom right;
       background-size: contain;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+    .loading {
+      position: fixed;
+      height: 100%;
+      width: 100%;
+      left: 0;
+      top: 0;
+      background: #FFFFFF;
+    }
+    .loading .content {
+      height: 330px;
+      width: 540px;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      margin-top: -165px;
+      margin-left: -270px;
+    }
+    .loading .content .banner {
+      display: inline-block;
+      width: 540px;
+      height: 303px;
+      background: url('./assets/images/meta.gif') no-repeat center;
+      background-size: 100% 100%;
+    }
+    .loading .content {
+      text-align: center;
+      font-size: 20px;
+      color: #666666;
+    }
+    .loading .content span {
+      color: #40a9ff;
+      padding-left: 8px;
     }
   </style>
 </head>
 
 <body>
+  <div class="loading" id="loading">
+    <div class="content">
+      <i class="banner"></i>
+      <p class="text">加载进度<span id="progress">0%</span></p>
+    </div>
+  <div>
   <script src="./assets/libs/three.js"></script>
   <script src="./assets/libs/loaders/FBXLoader.js"></script>
   <script src="./assets/libs/inflate.min.js"></script>
   <script src="./assets/libs/OrbitControls.js"></script>
+  <script src="./assets/libs/OutlinePass.js"></script>
   <script src="./assets/libs/stats.js"></script>
   <script>
-    var container, stats, controls;
-    var camera, scene, renderer, light, lands = [];
+    var container, stats, controls, compose;
+    var camera, scene, renderer, light, clickableObjects = [];
     var clock = new THREE.Clock();
     var mixer, mixerArr = [], manMixer;
     init();
@@ -76,11 +117,11 @@
           if (child.isMesh) {
             child.castShadow = true;
             child.receiveShadow = true;
-            lands.push(child)
             if (child.name === '球体' || child.name === '球体001') {
               child.visible = false
             }
             if (child.name === '贝塞尔圆') {
+              clickableObjects.push(child)
               child.material = new THREE.MeshPhysicalMaterial({
                 map: texLoader.load("./assets/images/metal.png"),
                 metalness: .2,
@@ -92,7 +133,7 @@
         });
         mesh.rotation.y = Math.PI / 2;
         mesh.position.set(0, 1, 0);
-        mesh.scale.set(0.06, 0.06, 0.06);
+        mesh.scale.set(0.05, 0.05, 0.05);
         scene.add(mesh);
         mesh.animations.map(item => {
           let animationType = item.name.split('|')[0];
@@ -119,13 +160,21 @@
           }
         });
         mesh.rotation.y = Math.PI / 2;
-        mesh.position.set(-12, -8.4, -3);
+        mesh.position.set(-14, -8.4, -3);
         mesh.scale.set(0.09, 0.09, 0.09);
         scene.add(mesh);
         manMixer = new THREE.AnimationMixer(mesh);
         let animationClip = mesh.animations[0];
         let clipAction = manMixer.clipAction(animationClip).play();
         animationClip = clipAction.getClip();
+      }, res => {
+        let progress = (res.loaded / res.total * 100).toFixed(0);
+        document.getElementById('progress').innerText = progress + '%';
+        if (Number(progress) === 100) {
+          document.getElementById('loading').style.display = 'none';
+        }
+      }, err => {
+        console.log(err)
       });
 
       renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -157,6 +206,7 @@
         mixer && mixer.update(time);
       })
       manMixer && manMixer.update(time)
+      compose && compose.render(time);
       stats.update();
       requestAnimationFrame(animate);
     }
@@ -171,12 +221,39 @@
       // 通过鼠标点的位置和当前相机的矩阵计算出raycaster
       raycaster.setFromCamera(mouse, camera);
       // 获取raycaster直线和所有模型相交的数组集合
-      console.log(scene.children)
-      let intersects = raycaster.intersectObjects(lands);
+      let intersects = raycaster.intersectObjects(clickableObjects);
       if (intersects.length > 0) {
-        let selectedObj = intersects[0].object;
         console.log(intersects[0].object)
+        let selectedObj = intersects[0].object;
       }
+    }
+
+    const setOutline = (selectedObjects, color = 0xFFFC00) => {
+      const [w, h] = [window.innerWidth, window.innerHeight];
+      let _compose = new THREE.EffectComposer(renderer);
+      let renderPass = new THREE.RenderPass(scene, camera);
+      let outlinePass = new THREE.OutlinePass(new THREE.Vector2(w, h),
+        scene,
+        camera,
+        selectedObjects
+      );
+      outlinePass.renderToScreen = true;
+      outlinePass.selectedObjects = selectedObjects;
+      _compose.addPass(renderPass);
+      _compose.addPass(outlinePass);
+      const params = {
+        edgeStrength: 3,
+        edgeGlow: 0,
+        edgeThickness: 20000,
+        pulsePeriod: 1,
+        usePatternTexture: false
+      };
+      outlinePass.edgeStrength = params.edgeStrength;
+      outlinePass.edgeGlow = params.edgeGlow;
+      outlinePass.visibleEdgeColor.set(color);
+      outlinePass.hiddenEdgeColor.set(color);
+      _compose.render(scene, camera);
+      compose = _compose;
     }
     window.addEventListener('click', onMouseClick, false);
   </script>
