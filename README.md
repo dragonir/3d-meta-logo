@@ -6,21 +6,17 @@
 
 `Facebook` 近期将其母公司改名为 `Meta`，正式宣布开始进军元宇宙领域 `🪐` 。本文主要讲述通过 `Three.js` + `Blender` 技术栈，实现 `Meta` 公司炫酷的 `3D` 动态 `Logo`，内容包括模型生成、模型加载、添加动画、添加点击事件、更换材质等。
 
-![zack](./assets/images/zack.gif)
-
 ### 什么是元宇宙
 
-「元宇宙」的内涵是吸纳了信息革命（5G/6G)、互联网革命（web3.0）、人工智能革命，以及 VR、AR、MR，特别是游戏引擎在内的虚拟现实技术革命的成果，向人类展现出构建与传统物理世界平行的全息数字世界的可能性；引发了信息科学、量子科学，数学和生命科学的互动，改变科学范式；推动了传统的哲学、社会学甚至人文科学体系的突破；囊括了所有的数字技术，包括区块链技术成就；丰富了数字经济转型模式，融合 DeFi、IPFS、NFT 等数字金融成果。
+元宇宙 `Metaverse` 一词源于 `1992` 年尼尔·斯蒂芬森的 `《雪崩》`，这本书描述了一个平行于现实世界的虚拟世界 `Metaverse`，所有现实生活中的人都有一个网络分身 `Avatar`。`维基百科` 对元宇宙的描述是：通过虚拟增强的物理现实，呈现收敛性和物理持久性特征的，基于未来互联网，具有链接感知和共享特征的 `3D` 虚拟空间。
 
-源起
+![zack](./assets/images/zack.gif)
 
-「Metaverse」一词由前缀「meta」（意为「超越」「元」）和词根「verse」（源于 universe「宇宙」）组成，直译而来便是「元宇宙」。这一概念最早出自于尼尔·斯蒂芬森 1992 年出版的科幻小说《雪崩》(Snow Crash)，指在一个脱离于物理世界，却始终在线的平行数字世界中，人们能够在其中以虚拟人物角色 (avatar) 自由生活。
-
-元宇宙这个词源于 1992 年尼尔·斯蒂芬森的《雪崩》，这本书描述了一个平行于现实世界的虚拟世界，Metaverse，所有现实生活中的人都有一个网络分身 Avatar。维基百科对元宇宙的描述是：通过虚拟增强的物理现实，呈现收敛性和物理持久性特征的，基于未来互联网，具有链接感知和共享特征的 3D 虚拟空间。
-
-正如电影《头号玩家》的场景，在未来的某一天，人们可以随时随地切换身份，自由穿梭于物理世界和数字世界，在虚拟空间和时间节点所构成的「元宇宙」中学习、工作、交友、购物、旅游等。元宇宙，这个建立在区块链之上的虚拟世界，去中心化平台让玩家享有所有权和自治权。通过沉浸式的体验，让虚拟进一步接近现实。
+元宇宙的内涵是吸纳了信息革命 `5G/6G`、互联网革命 `web3.0`、人工智能革命，以及 `VR`、`AR`、`MR`，特别是游戏引擎在内的虚拟现实技术革命的成果，向人类展现出构建与传统物理世界平行的全息数字世界的可能性；引发了信息科学、量子科学，数学和生命科学的互动，改变科学范式；推动了传统的哲学、社会学甚至人文科学体系的突破；囊括了所有的数字技术。正如电影 `《头号玩家》` 的场景，在未来的某一天，人们可以随时随地切换身份，自由穿梭于物理世界和数字世界，在虚拟空间和时间节点所构成的元宇宙中学习生活。
 
 ## 实现效果
+
+进入正题，先来看看本文示例的实现效果。
 
 ![preview](./assets/images/preview.gif)
 
@@ -38,17 +34,42 @@
 
 `失败 😭`
 
-通过three.js提供的基础几何体THREE.TorusGeometry（圆环）
+通过three.js提供的基础几何体THREE.TorusGeometry（圆环）Torus（圆环）是一种看起来像甜甜圈 `🍩` 的简单图形
 
-Torus（圆环）是一种看起来像甜甜圈 `🍩` 的简单图形
+下面给出了常用的几个属性：
+
+* `radius`：可选。定义圆环的半径尺寸。默认值是 `1`。
+* `tube`：可选。定义圆环的管子半径。默认值是 `0.4`。
+* `radialSegments`：可选。定义圆环长度方向上的分段数。默认值是 `8`。
+* `tubularSegments`：可选。定义圆环宽度方向上的分段数。默认值是 `6`。
+* `arc`：可选。定义圆环绘制的长度。取值范围是 `0` 到 `2 * π`。默认值是 `2 * π`（一个完整的圆）。
+
+```js
+THREE.TorusGeometry(radius, tube, radialSegments, tubularSegments, arc)
+```
 
 ### 试炼二：THREE.TorusKnotGeometry
 
 `失败 😭`
 
-THREE.TorusKnotGeometry（环状纽结）实现。
+`THREE.TorusKnotGeometry` 可以用来创建三维环面扭结，环面扭结是一种比较特别的结，看上去像一根管子绕着它自己旋转了几圈，创建时可输入以下参数：
+
+* `radius`：可选。设置完整圆环的半径，默认值是 `1`。
+* `tube`：可选。设置管道的半径，默认值是 `0.4`。
+* `radialSegments`：可选。指定管道截面的分段数，段数越多，管道截面圆越光滑，默认值是 `8`。
+* `tubularSegments`：可选。指定管道的分段数，段数越多，管道越光滑，默认值是 `64`。
+* `p`：可选。决定几何体将绕着其旋转对称轴旋转多少次，默认值是 `2`。
+* `q`：可选。决定几何体将绕着其内部圆环旋转多少次，默认值是 `3`。
+
+创建三维环面扭结的方式如下：
+
+```js
+THREE.TorusKnotGeometry(radius, tube , radialSegments , tubularSegments , p,q)
+```
 
 ### 试炼三：THREE.TubeGeometry
+
+`成功 😊`
 
 `THREE.TubeGeometry` 沿着一条三维的样条曲线拉伸出一根管。你可以指定一些定点来定义路径，然后使用 `THREE.TubeGeometry` 创建这根管。
 
@@ -60,134 +81,78 @@ THREE.TorusKnotGeometry（环状纽结）实现。
 * `radiusSegments`：该属性指定管道圆周的分段数。默认值为 `8`，分段数越多，管道看上去越圆。
 * `closed`：如果该属性设置为 `true`，管道的头和尾会连起来，默认值为 `false`。
 
-`成功 😊`
-
 ```js
-function init() {
-
-  var stats = initStats();
-  var renderer = initRenderer();
-  var camera = initCamera();
-  var scene = new THREE.Scene();
-  initDefaultLighting(scene);
-  var groundPlane = addLargeGroundPlane(scene)
-  groundPlane.position.y = -30;
-
-  var step = 0;
-  var spGroup;
-
-  var controls = new function () {
-    this.appliedMaterial = applyMeshNormalMaterial
-    this.castShadow = true;
-    this.groundPlaneVisible = true;
-    this.numberOfPoints = 20;
-    this.deafultpoints = [
-      [0, 0.4, -0.4],
-      [0.4, 0, 0],
-      [0.4, 0.8, 0.4],
-      [0, 0.4, 0.4],
-      [-0.4, 0, 0],
-      [-0.4, 0.8, -0.4],
-      [0, 0.4, -0.4]
-    ]
-    this.segments = 64;
-    this.radius = 1;
-    this.radiusSegments = 8;
-    // 是否闭合
-    this.closed = true;
-    this.points = [];
-    // we need the first child, since it's a multimaterial
-
-    this.newPoints = function () {
-      var points = [];
-      for (var i = 0; i < controls.deafultpoints.length; i++) {
-        var _x = controls.deafultpoints[i][0] * 22;
-        var _y = controls.deafultpoints[i][1] * 22;
-        var _z = controls.deafultpoints[i][2] * 22;
-        points.push(new THREE.Vector3(_x, _y, _z));
-      }
-      controls.points = points;
-      controls.redraw();
-    };
-
-    this.redraw = function () {
-      redrawGeometryAndUpdateUI(gui, scene, controls, function() {
-        return generatePoints(controls.points, controls.segments, controls.radius, controls.radiusSegments,
-          controls.closed);
-      });
-    };
-
-  };
-
-  var gui = new dat.GUI();
-  gui.add(controls, 'newPoints');
-  gui.add(controls, 'numberOfPoints', 2, 200).step(1).onChange(controls.newPoints);
-  gui.add(controls, 'segments', 0, 200).step(1).onChange(controls.redraw);
-  gui.add(controls, 'radius', 0, 10).onChange(controls.redraw);
-  gui.add(controls, 'radiusSegments', 0, 200).step(1).onChange(controls.redraw);
-  gui.add(controls, 'closed').onChange(controls.redraw);
-  gui.add(controls, 'appliedMaterial', {
-    meshNormal: applyMeshNormalMaterial,
-    meshStandard: applyMeshStandardMaterial
-  }).onChange(controls.redraw)
-
-  gui.add(controls, 'castShadow').onChange(function(e) {controls.mesh.castShadow = e})
-  gui.add(controls, 'groundPlaneVisible').onChange(function(e) {groundPlane.material.visible = e})
-
-  controls.newPoints();
-
-  render();
-
-  function generatePoints(points, segments, radius, radiusSegments, closed) {
-    if (spGroup) scene.remove(spGroup)
-    spGroup = new THREE.Object3D();
-    var material = new THREE.MeshBasicMaterial({
-      color: 0xff0000,
-      transparent: false
-    });
-    points.forEach(function (point) {
-
-      var spGeom = new THREE.SphereGeometry(0.1);
-      var spMesh = new THREE.Mesh(spGeom, material);
-      spMesh.position.copy(point);
-      spGroup.add(spMesh);
-    });
-    // add the points as a group to the scene
-    scene.add(spGroup);
-    return new THREE.TubeGeometry(new THREE.CatmullRomCurve3(points), segments, radius, radiusSegments, closed);
-  }
-
-  function render() {
-    stats.update();
-    controls.mesh.rotation.y = step
-    controls.mesh.rotation.x = step += 0.01
-    controls.mesh.rotation.z = step
-
-    if (spGroup) {
-      spGroup.rotation.y = step
-      spGroup.rotation.x = step
-      spGroup.rotation.z = step
+// ...
+var controls = new function () {
+  // 点的位置坐标
+  this.deafultpoints = [
+    [0, 0.4, -0.4],
+    [0.4, 0, 0],
+    [0.4, 0.8, 0.4],
+    [0, 0.4, 0.4],
+    [-0.4, 0, 0],
+    [-0.4, 0.8, -0.4],
+    [0, 0.4, -0.4]
+  ]
+  this.segments = 64;
+  this.radius = 1;
+  this.radiusSegments = 8;
+  this.closed = true;
+  this.points = [];
+  this.newPoints = function () {
+    var points = [];
+    for (var i = 0; i < controls.deafultpoints.length; i++) {
+      var _x = controls.deafultpoints[i][0] * 22;
+      var _y = controls.deafultpoints[i][1] * 22;
+      var _z = controls.deafultpoints[i][2] * 22;
+      points.push(new THREE.Vector3(_x, _y, _z));
     }
-
-    requestAnimationFrame(render);
-    renderer.render(scene, camera);
-  }
+    controls.points = points;
+    controls.redraw();
+  };
+  this.redraw = function () {
+    redrawGeometryAndUpdateUI(gui, scene, controls, function() {
+      return generatePoints(controls.points, controls.segments, controls.radius, controls.radiusSegments,
+        controls.closed);
+    });
+  };
+};
+controls.newPoints();
+function generatePoints(points, segments, radius, radiusSegments, closed) {
+  if (spGroup) scene.remove(spGroup);
+  spGroup = new THREE.Object3D();
+  var material = new THREE.MeshBasicMaterial({ color: 0xff0000, transparent: false });
+  points.forEach(function (point) {
+    var spGeom = new THREE.SphereGeometry(0.1);
+    var spMesh = new THREE.Mesh(spGeom, material);
+    spMesh.position.copy(point);
+    spGroup.add(spMesh);
+  });
+  scene.add(spGroup);
+  return new THREE.TubeGeometry(new THREE.CatmullRomCurve3(points), segments, radius, radiusSegments, closed);
 }
+// ...
 ```
 
 ![preview](./assets/images/preview.png)
 
 ### 试炼四：Blender + Three.js
 
-虽然使用THREE.TubeGeometry可以勉强实现，但是效果并不好，要实现圆滑的环，需要为管道添加精确的扭曲圆环曲线路径函数。由于数学能力有限🤕️，暂时没找到扭曲圆弧路径计算的方法。因此决定从建模层面解决。
-
 `成功 😄`
 
-#### 建模
+虽然使用THREE.TubeGeometry可以勉强实现，但是效果并不好，要实现圆滑的环，需要为管道添加精确的扭曲圆环曲线路径函数。由于数学能力有限🤕️，暂时没找到扭曲圆弧路径计算的方法。因此决定从建模层面解决。
+
+#### 建模教程
 
 ![bilibili](./assets/images/bilibili.png)
 
 > `🔗` 传送门：[【动态设计教程】AE+blender能怎么玩？脸书元宇宙Meta动态logo已完全解析，100%学会](https://www.bilibili.com/video/BV1Bf4y1T7ce)
+
+#### 用Blender建模
+
+使用 `Blender` 进行建模，并导出可携带动画的 `fbx` 格式，导出的时候不要忘记勾选 `烘焙动画` 选项。
+
+![blender](./assets/images/blender.png)
 
 #### 加载依赖
 
@@ -202,10 +167,8 @@ function init() {
 #### 场景初始化
 
 ```js
-var container, stats, controls, compose;
-var camera, scene, renderer, light, clickableObjects = [];
+var container, stats, controls, compose, camera, scene, renderer, light, clickableObjects = [], mixer, mixerArr = [], manMixer;
 var clock = new THREE.Clock();
-var mixer, mixerArr = [], manMixer;
 init();
 animate();
 function init() {
@@ -263,50 +226,31 @@ function onWindowResize() {
 }
 ```
 
-#### 加载logo模型
+#### 加载Logo模型
+
+使用 `FBXLoader` 加载模型，并设置模型的位置和大小。
 
 ```js
 var loader = new THREE.FBXLoader();
-var texLoader = new THREE.TextureLoader();
 loader.load('assets/models/meta.fbx', function (mesh) {
   mesh.traverse(function (child) {
     if (child.isMesh) {
       child.castShadow = true;
       child.receiveShadow = true;
-      // 设置材质
-      if (child.name === '贝塞尔圆') {
-        clickableObjects.push(child)
-        child.material = new THREE.MeshPhysicalMaterial({
-          map: texLoader.load("./assets/images/metal.png"),
-          metalness: .2,
-          roughness: 0.1,
-          exposure: 0.4
-        });
-      }
     }
   });
   mesh.rotation.y = Math.PI / 2;
   mesh.position.set(0, 1, 0);
   mesh.scale.set(0.05, 0.05, 0.05);
   scene.add(mesh);
-  mesh.animations.map(item => {
-    let animationType = item.name.split('|')[0];
-    mesh.traverse(child => {
-      if (child.name === animationType && (child.name === '贝塞尔圆')) {
-        console.log(child.name)
-        let mixer = new THREE.AnimationMixer(child);
-        mixerArr.push(mixer);
-        let animationClip = item;
-        animationClip.duration = 8;
-        let clipAction = mixer.clipAction(animationClip).play();
-        animationClip = clipAction.getClip();
-      }
-    })
-  })
 });
 ```
 
 #### 添加材质
+
+本文 `Logo` 使用的是 `MeshPhysicalMaterial`材质，它是一种 `PBR` 物理材质，可以更好的模拟光照计算，相比较高光网格材质 `MeshPhongMaterial` 渲染效果更逼真。使用 `THREE.TextureLoader` 为材质添加 `map` 属性来加载模型贴图。下图是金属质感的纹理贴图。
+
+![metal](./assets/images/metal.png)
 
 ```js
 var texLoader = new THREE.TextureLoader();
@@ -328,12 +272,15 @@ loader.load('assets/models/meta.fbx', function (mesh) {
 
 #### 添加动画
 
+* `AnimationMixer` 对象是场景中特定对象的动画播放器。当场景中的多个对象独立动画时，可以为每个对象使用一个 `AnimationMixer`。
+* `AnimationMixer` 对象的 `clipAction` 方法生成可以控制执行动画的实例。
+
 ```js
 loader.load('assets/models/meta.fbx', function (mesh) {
   mesh.animations.map(item => {
-    let animationType = item.name.split('|')[0];
     mesh.traverse(child => {
-      if (child.name === animationType && (child.name === '贝塞尔圆')) {
+      // 因为模型中有多个物体，并且各自有不同动画，示例中只为贝塞尔圆这个网格添加动画
+      if (child.name === '贝塞尔圆') {
         let mixer = new THREE.AnimationMixer(child);
         mixerArr.push(mixer);
         let animationClip = item;
@@ -346,16 +293,19 @@ loader.load('assets/models/meta.fbx', function (mesh) {
 });
 ```
 
-页面更新
+添加动画之后，不要忘了要在 `requestAnimationFrame` 中更新动画。
 
 ```js
 function animate() {
   renderer.render(scene, camera);
+  // 获得前后两次执行该方法的时间间隔
   let time = clock.getDelta();
+  // 更新logo动画
   mixerArr.map(mixer => {
     mixer && mixer.update(time);
-  })
-  manMixer && manMixer.update(time)
+  });
+  // 更新人物动画
+  manMixer && manMixer.update(time);
   stats.update();
   requestAnimationFrame(animate);
 }
@@ -363,7 +313,13 @@ function animate() {
 
 #### 加载进度
 
-![loading](./assets/images/loading.gif)
+`FBXLoader` 同时返回两个回调函数，可以像下面这样使用，用来展示模型加载进程展示以及加载失败的逻辑实现。
+
+```html
+<div class="loading" id="loading">
+  <p class="text">加载进度<span id="progress">0%</span></p>
+<div>
+```
 
 ```js
 var loader = new THREE.FBXLoader();
@@ -371,25 +327,21 @@ loader.load('assets/models/meta.fbx', mesh => {
 }, res => {
   // 加载进程
   let progress = (res.loaded / res.total * 100).toFixed(0);
-  console.log(progress)
+  document.getElementById('progress').innerText = progress;
+  if (progress === 100) {
+    document.getElementById('loading').style.display = 'none';
+  }
 }, err => {
   // 加载失败
   console.log(err)
 });
 ```
 
-```html
-<div class="loading" id="loading">
-  <div class="content">
-    <i class="banner"></i>
-    <p class="text">加载进度<span id="progress">0%</span></p>
-  </div>
-<div>
-```
+![loading](./assets/images/loading.gif)
 
 #### 点击更换材质
 
-增加点击事件
+监听页面的点击事件，通过 `HREE.Raycaster` 拿到当前点击对象，为了展示例子，我为点击对象更换了一种材质 `THREE.MeshStandardMaterial`，并赋予它随机的 `color` 颜色、`metalness` 金属质感以及 `roughness` 粗糙程度。
 
 ```js
 //声明raycaster和mouse变量
@@ -418,7 +370,11 @@ window.addEventListener('click', onMouseClick, false);
 
 ![material](./assets/images/material.gif)
 
+> `📌` 更多关于网格材质的知识，可参考文章末尾的链接。
+
 #### 加载人物模型
+
+人物模型的加载流程和logo模型加载流程是一样的。
 
 ```js
 loader.load('assets/models/man.fbx', function (mesh) {
@@ -447,11 +403,17 @@ loader.load('assets/models/man.fbx', function (mesh) {
 });
 ```
 
+人物模型来源于[mixamo.com](https://www.mixamo.com)，该网站有有上百种任务和上千种动作可自由组合，`免费` 下载。大家可以挑选自己喜欢的人物和动画动作来练习 `Three.js`。
+
 ![download](./assets/images/download.png)
+
+> `📌` 完整代码：https://github.com/dragonir/3d-meta-logo
 
 ## 总结
 
 ## 参考资料
 
-* [1]. [什么是元宇宙？](https://zhuanlan.zhihu.com/p/392257538)
-* [2]. [Adobe免费模型下载](https://www.mixamo.com)
+* [1]. [使用three.js实现炫酷的酸性风格3D页面](https://juejin.cn/post/7012996721693163528)
+* [2]. [ThreeJs认识材质](https://juejin.cn/post/6844903903318949895#heading-12)
+* [3]. [Three之Animation初印象](https://zhuanlan.zhihu.com/p/419797361)
+* [4]. [什么是元宇宙？](https://zhuanlan.zhihu.com/p/392257538)
