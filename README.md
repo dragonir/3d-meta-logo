@@ -48,6 +48,8 @@
 THREE.TorusGeometry(radius, tube, radialSegments, tubularSegments, arc)
 ```
 
+![preview_1](./assets/images/preview_1.png)
+
 ### 试炼二：THREE.TorusKnotGeometry
 
 `失败 😭`
@@ -66,6 +68,8 @@ THREE.TorusGeometry(radius, tube, radialSegments, tubularSegments, arc)
 ```js
 THREE.TorusKnotGeometry(radius, tube , radialSegments , tubularSegments , p,q)
 ```
+
+![preview_2](./assets/images/preview_2.png)
 
 ### 试炼三：THREE.TubeGeometry
 
@@ -134,7 +138,7 @@ function generatePoints(points, segments, radius, radiusSegments, closed) {
 // ...
 ```
 
-![preview](./assets/images/preview.png)
+![preview_3](./assets/images/preview_3.png)
 
 ### 试炼四：Blender + Three.js
 
